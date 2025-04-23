@@ -28,7 +28,7 @@ if [ ! -d "$chroot_path/opt/repo" ]; then
   archlinux_mirror_url="https://mirror.arizona.edu/archlinux"
   bootstrap_temp_location="/tmp/archlinux_bootstrap.tar.zst"
 
-  wget -q --show-progress -O "$bootstrap_temp_location" "$archlinux_mirror_url/iso/latest/archlinux-bootstrap-x86_64.tar.zst"
+  wget -q -O "$bootstrap_temp_location" "$archlinux_mirror_url/iso/latest/archlinux-bootstrap-x86_64.tar.zst"
   tar -I zstd -xf "$bootstrap_temp_location" -C "$chroot_path" root.x86_64/ --strip-components=1
 fi
 
