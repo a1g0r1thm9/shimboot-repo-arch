@@ -25,7 +25,6 @@ patches="${args['patches']}"
 
 build_dir="$base_path/build"
 source_dir="$build_dir/pkg"
-host_arch="$(dpkg --print-architecture)"
 repo_url="$(get_distro_info "$distro_name" "$arch" | cut -d'|' -f1)"
 
 #install build tools
