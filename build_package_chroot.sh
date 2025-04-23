@@ -27,8 +27,8 @@ build_dir="$base_path/build"
 source_dir="$build_dir/pkg"
 
 #install build tools
-sudo pacman -Syu --noconfirm
-sudo pacman -S --noconfirm --needed base-devel git quilt meson ninja
+pacman -Syu --noconfirm
+pacman -S --noconfirm --needed base-devel git quilt meson ninja
 
 #create a directory to put the package source in
 rm -rf "$build_dir"
@@ -49,7 +49,7 @@ if [ "$patches" ]; then
 fi
 
 #install build deps
-sudo pacman -S gperf libcap libgcrypt libseccomp util-linux cryptsetup xz \
+pacman -S gperf libcap libgcrypt libseccomp util-linux cryptsetup xz \
   kmod acl pam python-docutils libidn2 libxcrypt gnutls dbus libmicrohttpd \
   libp11-kit libfido2 libbpf curl libcurl
 #trust me, this is much easier than 'dpkg --add-architecture'           - some guy on r/unixporn, 201X
@@ -58,8 +58,8 @@ if [ "$arch" = "amd64" ]; then
     echo "multilib already enabled"
   else
       #uncomment multilib block
-      sudo sed -i '/^\[multilib\]/,/^#Include/ s/^#//' "/etc/pacman.conf"
-      sudo pacman -Sy
+      sed -i '/^\[multilib\]/,/^#Include/ s/^#//' "/etc/pacman.conf"
+      pacman -Sy
   fi
 fi
 
