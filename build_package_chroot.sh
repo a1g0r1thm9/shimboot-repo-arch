@@ -27,8 +27,8 @@ build_dir="$base_path/build"
 source_dir="$build_dir/pkg"
 
 #pacman needs sources, using old reliable arizona.edu
-echo "core = http://mirror.arizona.edu/archlinux/core/os/x86_64/" > /etc/pacman.d/mirrorlist
-echo "extra = http://mirror.arizona.edu/archlinux/extra/os/x86_64/" > /etc/pacman.d/mirrorlist
+echo "core = http://mirror.arizona.edu/archlinux/core/os/$arch/" > /etc/pacman.d/mirrorlist
+echo "extra = http://mirror.arizona.edu/archlinux/extra/os/$arch/" > /etc/pacman.d/mirrorlist
 
 #install build tools
 pacman -Syu --noconfirm
