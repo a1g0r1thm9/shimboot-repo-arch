@@ -26,6 +26,10 @@ patches="${args['patches']}"
 build_dir="$base_path/build"
 source_dir="$build_dir/pkg"
 
+#pacman needs sources, using old reliable arizona.edu
+echo "core = http://mirror.arizona.edu/archlinux/core/os/x86_64/" > /etc/pacman.d/mirrorlist
+echo "extra = http://mirror.arizona.edu/archlinux/extra/os/x86_64/" > /etc/pacman.d/mirrorlist
+
 #install build tools
 pacman -Syu --noconfirm
 pacman -S --noconfirm --needed base-devel git quilt meson ninja
@@ -63,5 +67,5 @@ if [ "$arch" = "amd64" ]; then
   fi
 fi
 
-#build the package
+#gotta move that gear up!
 ninja -C build
