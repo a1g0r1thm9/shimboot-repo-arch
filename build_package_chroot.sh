@@ -5,19 +5,17 @@ cd $base_path
 . ./common.sh
 
 print_help() {
-  echo "Usage: ./build_package_chroot.sh distro_name release_name arch"
+  echo "Usage: ./build_package_chroot.sh arch"
   echo "Valid named arguments (specify with 'key=value'):"
   echo "  pkg_source  - Package source location (git)"
   echo "  patches     - Patch files (relative to the repo dir)"
 }
 
 assert_root
-assert_args "$3"
+assert_args "$1"
 parse_args "$@"
 
-distro_name="$1"
-release_name="$2"
-arch="$3"
+arch="$1"
 
 source_type="git"
 pkg_source="${args['pkg_source']}"
