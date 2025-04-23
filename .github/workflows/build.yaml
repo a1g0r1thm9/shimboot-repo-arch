@@ -7,7 +7,6 @@ jobs:
   build_systemd:
     strategy: 
       matrix:
-        release_name: ['ubuntu_noble', 'debian_bookworm', 'debian_unstable']
         runner: [ubuntu-24.04, ubuntu-24.04-arm]
 
     runs-on: ${{ matrix.runner }}
@@ -36,43 +35,12 @@ jobs:
           name: systemd_${{ matrix.release_name }}_${{ matrix.runner }}
           path: out
   
-  build_mesa:
-    strategy: 
-      matrix:
-        runner: [ubuntu-24.04, ubuntu-24.04-arm]
-
-    runs-on: ${{ matrix.runner }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install deps
-        run: | 
-          sudo apt-get install -y debootstrap binfmt-support
-
-      - name: Build
-        run: | 
-          [ "$(uname -m)" = "x86_64" ] && arch="amd64" || arch="arm64"
-          sudo ./build_mesa.sh debian bookworm $arch
-          mkdir -p out/noble_$arch
-          mkdir -p out/bookworm_$arch
-          mkdir -p out/unstable_$arch
-          cp build/*.deb out/noble_$arch
-          cp build/*.deb out/bookworm_$arch
-          cp build/*.deb out/unstable_$arch
-      
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: mesa_generic_${{ matrix.runner }}
-          path: out
-  
   publish:
     runs-on: ubuntu-24.04
     permissions:
       contents: read
       deployments: write
-    needs: [build_systemd, build_mesa]
+    needs: [build_systemd]
     steps:
       - name: Checkout
         uses: actions/checkout@v4

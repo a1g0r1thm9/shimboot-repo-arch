@@ -7,7 +7,7 @@ cd $base_path
 #this script creates a chroot then invokes build_package_chroot.sh inside the chroot
 
 print_help() {
-  echo "Usage: ./build_package.sh distro_name release_name arch"
+  echo "Usage: ./build_package.sh arch"
   echo "Valid named arguments (specify with 'key=value'):"
   echo "  source_type - Package source type (either git or apt)"
   echo "  pkg_source  - Package source location"
@@ -16,20 +16,21 @@ print_help() {
 
 assert_root
 assert_deps "debootstrap"
-assert_args "$3"
+assert_args "$1"
 
-distro_name="$1"
-release_name="$2"
-arch="$3"
-repo_url="$(get_distro_info "$distro_name" "$arch" | cut -d'|' -f1)"
+arch="$1"
 
 base_path="$(realpath $(dirname $0))"
-chroot_path="$base_path/chroots/${distro_name}_${release_name}_${arch}"
+chroot_path="$base_path/chroots/archlinux_${arch}"
 
-#create the chroot if it doesn't exist
 if [ ! -d "$chroot_path/opt/repo" ]; then
   mkdir -p $chroot_path
-  debootstrap --arch $arch "$release_name" "$chroot_path" "$repo_url" || (cat "$chroot_path/debootstrap/debootstrap.log" && exit 1)
+  archlinux_mirror_url="https://mirror.arizona.edu/archlinux"
+  bootstrap_temp_location="/tmp/archlinux_bootstrap.tar.zst"
+
+  print_info "downloading and extracting latest arch linux bootstrap"
+  wget -q --show-progress -O "$bootstrap_temp_location" "$archlinux_mirror_url/iso/latest/archlinux-bootstrap-x86_64.tar.zst"
+  tar -I zstd -xf "$bootstrap_temp_location" -C "$chroot_path" root.x86_64/ --strip-components=1
 fi
 
 #define the bind mount points

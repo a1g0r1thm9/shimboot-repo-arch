@@ -55,26 +55,3 @@ assert_args() {
   fi
 }
 
-get_distro_info() {
-  local distro_name="$1"
-  local arch="$2"
-
-  if [ "$distro_name" = "debian" ]; then
-    local repo_url="http://deb.debian.org/debian"
-    local components="main"
-
-  elif [ "$distro_name" = "ubuntu" ]; then
-    if [ "$arch" = "amd64" ]; then
-      local repo_url="http://archive.ubuntu.com/ubuntu"
-    else 
-      local repo_url="http://ports.ubuntu.com"
-    fi
-    local components="main universe"
-
-  else
-    echo "invalid distro name"
-    exit 1
-  fi
-
-  echo "$repo_url|$components"
-}

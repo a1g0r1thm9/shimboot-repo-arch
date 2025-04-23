@@ -5,18 +5,16 @@ cd $base_path
 . ./common.sh
 
 print_help() {
-  echo "Usage: ./build_systemd.sh distro_name release_name arch"
+  echo "Usage: ./build_systemd.sh arch"
 }
 
 assert_root
 assert_deps "debootstrap"
-assert_args "$3"
+assert_args "$1"
 
-distro_name="$1"
-release_name="$2"
-arch="$3"
+arch="$1"
 
-./build_package.sh $distro_name $release_name $arch \
-  source_type=apt \
-  pkg_source=systemd \
-  patches=patches/systemd_$release_name.patch
+#the debian unstable patch looks like it will probably work on modern systemd, need to test
+./build_package.sh $arch \
+  pkg_source="https://github.com/systemd/systemd" \
+  patches=patches/systemd_arch.patch

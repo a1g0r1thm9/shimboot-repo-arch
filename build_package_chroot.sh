@@ -7,8 +7,7 @@ cd $base_path
 print_help() {
   echo "Usage: ./build_package_chroot.sh distro_name release_name arch"
   echo "Valid named arguments (specify with 'key=value'):"
-  echo "  source_type - Package source type (either git or apt)"
-  echo "  pkg_source  - Package source location"
+  echo "  pkg_source  - Package source location (git)"
   echo "  patches     - Patch files (relative to the repo dir)"
 }
 
@@ -20,7 +19,7 @@ distro_name="$1"
 release_name="$2"
 arch="$3"
 
-source_type="${args['source_type']}"
+source_type="git"
 pkg_source="${args['pkg_source']}"
 patches="${args['patches']}"
 
@@ -28,21 +27,10 @@ build_dir="$base_path/build"
 source_dir="$build_dir/pkg"
 host_arch="$(dpkg --print-architecture)"
 repo_url="$(get_distro_info "$distro_name" "$arch" | cut -d'|' -f1)"
-repo_components="$(get_distro_info "$distro_name" "$arch" | cut -d'|' -f2)"
 
-#setup apt repos
-rm -f /etc/apt/sources.list
-echo "deb $repo_url $release_name $repo_components" >> /etc/apt/sources.list
-echo "deb-src $repo_url $release_name $repo_components" >> /etc/apt/sources.list
-if [ "$distro_name" = "ubuntu" ]; then
-  echo "deb $repo_url $release_name-updates $repo_components" >> /etc/apt/sources.list
-  echo "deb-src $repo_url $release_name-updates $repo_components" >> /etc/apt/sources.list
-fi
-
-#install debian build tools
-apt-get update
-apt-get upgrade -y
-apt-get install git devscripts quilt equivs -y
+#install build tools
+sudo pacman -Syu --noconfirm
+sudo pacman -S --noconfirm --needed base-devel git quilt meson ninja
 
 #create a directory to put the package source in
 rm -rf "$build_dir"
@@ -50,20 +38,7 @@ mkdir -p "$build_dir"
 cd "$build_dir"
 
 #download the package source
-if [ "$source_type" = "git" ]; then
-  git clone --depth=1 "$pkg_source" "$source_dir"
-
-elif [ "$source_type" = "apt" ]; then
-  echo "downloading source package"
-  apt-get update
-  apt-get source "$pkg_source"
-  downloaded_dir=$(find "$build_dir" -mindepth 1 -maxdepth 1 -type d -printf '%f\n')
-  mv "$downloaded_dir" "$source_dir"
-
-else
-  echo "invalid source type"
-  exit 1
-fi
+git clone --depth=1 "$pkg_source" "$source_dir"
 
 #apply any needed patches
 cd "$source_dir"
@@ -76,11 +51,19 @@ if [ "$patches" ]; then
 fi
 
 #install build deps
-dpkg --add-architecture $arch
-apt-get update
-mk-build-deps --host-arch $arch
-apt-get install -y ./*.deb
+sudo pacman -S gperf libcap libgcrypt libseccomp util-linux cryptsetup xz \
+  kmod acl pam python-docutils libidn2 libxcrypt gnutls dbus libmicrohttpd \
+  libp11-kit libfido2 libbpf curl libcurl
+#trust me, this is much easier than 'dpkg --add-architecture'           - some guy on r/unixporn, 201X
+if [ "$arch" = "amd64" ]; then
+  if grep -q "^\[multilib\]" "/etc/pacman.conf"; then
+    echo "multilib already enabled"
+  else
+      #uncomment multilib block
+      sudo sed -i '/^\[multilib\]/,/^#Include/ s/^#//' "/etc/pacman.conf"
+      sudo pacman -Sy
+  fi
+fi
 
 #build the package
-export DEB_BUILD_OPTIONS=nocheck #skip tests
-dpkg-buildpackage -b -rfakeroot -us -uc -a$arch
+ninja -C build

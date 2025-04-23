@@ -1,13 +1,13 @@
-# Shimboot Debian Repository
+# Shimboot Arch Repository
 
-This repo contains scripts for building the Shimboot Debian repositories, which include a patched version of systemd and mesa-amber.
+This repo contains scripts for building the Shimboot Arch repositories, which include a patched version of systemd.
 
 ## Copyright:
 The contents of this repository are licensed under the GNU GPL v3.
 
 ```
-ading2210/shimboot-repo: Scripts for building the Shimboot Debian repository
-Copyright (C) 2024 ading2210
+a1g0r1thm9/shimboot-repo-arch: Scripts for building the Shimboot Debian repository
+Copyright (C) 2025 a1g0r1thm9
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
